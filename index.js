@@ -24,6 +24,47 @@ async function run() {
     const orderDb = client.db("order_packages");
     const orderInfo = orderDb.collection("infos");
 
+    app.get("/packages/order", async (req, res) => {
+      const cursor = orderInfo.find({});
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/packages/order", async (req, res) => {
+      const packages = req.body;
+      const result = await orderInfo.insertOne(packages);
+      res.send(result);
+    });
+
+    app.put("/packages/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const update = req.body;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: update.status,
+        },
+      };
+      const result = await orderInfo.updateOne(filter, updateDoc, option);
+
+      res.json(result);
+    });
+
+    app.delete("/packages/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderInfo.deleteOne(query);
+      res.json(result);
+    });
+
+    app.delete("/packages/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderInfo.deleteOne(query);
+      res.json(result);
+    });
+
     app.get("/packages", async (req, res) => {
       const cursor = userPackages.find({});
       const packages = await cursor.toArray();
@@ -45,47 +86,6 @@ async function run() {
       const result = await userPackages.findOne(query);
       res.send(result);
     });
-
-    app.post("/packages/orders", async (req, res) => {
-      const packages = req.body;
-      const result = await orderInfo.insertOne(packages);
-      res.send(result);
-    });
-
-    app.get("/packages/orders", async (req, res) => {
-      const cursor = orderInfo.find({});
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    app.put("/packages/orders/:id", async (req, res) => {
-      const id = req.params.id;
-      const update = req.body;
-      const filter = { _id: ObjectId(id) };
-      const option = { upsert: true };
-      const updateDoc = {
-        $set: {
-          status: update.status,
-        },
-      };
-      const result = await orderInfo.updateOne(filter, updateDoc, option);
-      console.log(result);
-      res.json(result);
-    });
-
-    app.delete("/packages/orders/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await orderInfo.deleteOne(query);
-      res.json(result);
-    });
-
-    // app.delete("/packages/orders/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: ObjectId(id) };
-    //   const result = await orderInfo.deleteOne(query);
-    //   res.json(result);
-    // });
   } finally {
     // await client.close();
   }
