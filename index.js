@@ -30,7 +30,23 @@ async function run() {
       res.send(packages);
     });
 
+    // package post at userPackages collection
     app.post("/packages", async (req, res) => {
+      const orders = req.body;
+      const result = await userPackages.insertOne(orders);
+      console.log(result);
+      res.json(result);
+    });
+
+    // get unique package from userPackages collection
+    app.get("/packages/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await userPackages.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/packages/orders", async (req, res) => {
       const packages = req.body;
       const result = await orderInfo.insertOne(packages);
       res.send(result);
@@ -57,20 +73,6 @@ async function run() {
       res.json(result);
     });
 
-    app.get("/packages/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await userPackages.findOne(query);
-      res.send(result);
-    });
-
-    app.delete("/packages/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await orderInfo.deleteOne(query);
-      res.json(result);
-    });
-
     app.delete("/packages/orders/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -78,12 +80,12 @@ async function run() {
       res.json(result);
     });
 
-    app.post("/packages", async (req, res) => {
-      const orders = req.body;
-      const result = await orderInfo.insertOne(orders);
-      console.log(result);
-      res.json(result);
-    });
+    // app.delete("/packages/orders/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await orderInfo.deleteOne(query);
+    //   res.json(result);
+    // });
   } finally {
     // await client.close();
   }
