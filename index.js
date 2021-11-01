@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v2wiu.mongodb.net/myFirstDatabase?retryWrites=true&w=majorit`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v2wiu.mongodb.net/myFirstDatabase?retryWrites=true`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -27,18 +27,20 @@ async function run() {
     app.get("/packages/order", async (req, res) => {
       const cursor = orderInfo.find({});
       const result = await cursor.toArray();
-      res.send(result);
+      console.log(result);
+      res.json(result);
     });
 
     app.post("/packages/order", async (req, res) => {
-      const packages = req.body;
-      const result = await orderInfo.insertOne(packages);
+      const user = req.body;
+      const result = await orderInfo.insertOne(user);
       res.send(result);
     });
 
     app.put("/packages/order/:id", async (req, res) => {
       const id = req.params.id;
       const update = req.body;
+      console.log(update);
       const filter = { _id: ObjectId(id) };
       const option = { upsert: true };
       const updateDoc = {
@@ -55,13 +57,22 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await orderInfo.deleteOne(query);
+      console.log(result);
       res.json(result);
     });
 
-    app.delete("/packages/orders/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await orderInfo.deleteOne(query);
+    // app.delete("/packages/order/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await orderInfo.deleteOne(query);
+    //   res.json(result);
+    // });
+
+    // package post at userPackages collection
+    app.post("/packages", async (req, res) => {
+      const orders = req.body;
+      const result = await userPackages.insertOne(orders);
+
       res.json(result);
     });
 
@@ -71,19 +82,12 @@ async function run() {
       res.send(packages);
     });
 
-    // package post at userPackages collection
-    app.post("/packages", async (req, res) => {
-      const orders = req.body;
-      const result = await userPackages.insertOne(orders);
-      console.log(result);
-      res.json(result);
-    });
-
     // get unique package from userPackages collection
     app.get("/packages/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await userPackages.findOne(query);
+
       res.send(result);
     });
   } finally {
