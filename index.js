@@ -13,8 +13,6 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 
-// 8XM85OmSF37MD5f3
-
 async function run() {
   try {
     await client.connect();
