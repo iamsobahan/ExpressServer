@@ -24,18 +24,24 @@ async function run() {
     const orderDb = client.db("order_packages");
     const orderInfo = orderDb.collection("infos");
 
+    // geting order info from orderInfo
+
     app.get("/packages/order", async (req, res) => {
       const cursor = orderInfo.find({});
       const result = await cursor.toArray();
-      console.log(result);
+
       res.json(result);
     });
+
+    // posting users order info in orderInfo
 
     app.post("/packages/order", async (req, res) => {
       const user = req.body;
       const result = await orderInfo.insertOne(user);
       res.send(result);
     });
+
+    // order status update dynamically  in orderInfo
 
     app.put("/packages/order/:id", async (req, res) => {
       const id = req.params.id;
@@ -53,20 +59,14 @@ async function run() {
       res.json(result);
     });
 
+    //  deleting unique order from objectId
     app.delete("/packages/order/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await orderInfo.deleteOne(query);
-      console.log(result);
+
       res.json(result);
     });
-
-    // app.delete("/packages/order/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: ObjectId(id) };
-    //   const result = await orderInfo.deleteOne(query);
-    //   res.json(result);
-    // });
 
     // package post at userPackages collection
     app.post("/packages", async (req, res) => {
@@ -75,6 +75,8 @@ async function run() {
 
       res.json(result);
     });
+
+    // get package info from userPackage collection
 
     app.get("/packages", async (req, res) => {
       const cursor = userPackages.find({});
@@ -98,7 +100,7 @@ run().catch(console.dir);
 
 app.get("/", (req, res) => {
   console.log("hit the server");
-  res.send("Allah is our Creator");
+  res.send("Allah is our Creator.Allah is Almighty.");
 });
 
 app.listen(port, () => {
